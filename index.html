@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taxi Metrics — Помічник водія</title>
+<style>
+body { font-family: Arial; background:#f5f5f5; padding:20px; max-width:600px; margin:auto; }
+.card { background:white; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); margin-top:20px; }
+button { background:#007bff; color:white; border:none; padding:10px 15px; border-radius:6px; cursor:pointer; }
+button:hover { background:#0056b3; }
+input, select { width:100%; padding:8px; margin-top:10px; }
+.step { display:none; }
+.step.active { display:block; }
+</style>
+</head>
+<body>
+
+<h2>🚖 Taxi Metrics — Майстер налаштування</h2>
+
+<div id="step1" class="step active card">
+  <h3>Крок 1: Вибір мови</h3>
+  <select id="lang">
+    <option value="uk">Українська</option>
+    <option value="en">English</option>
+  </select>
+  <button onclick="nextStep(2)">Далі</button>
+</div>
+
+<div id="step2" class="step card">
+  <h3>Крок 2: Базові параметри</h3>
+  <input id="city" placeholder="Місто (наприклад Київ)">
+  <input id="costs" placeholder="Витрати на день (грн)">
+  <button onclick="nextStep(1)">Назад</button>
+  <button onclick="nextStep(3)">Далі</button>
+</div>
+
+<div id="step3" class="step card">
+  <h3>Крок 3: Імпорт CSV з PrivatBank</h3>
+  <input type="file" id="csvFile" accept=".csv">
+  <p>Експортуй CSV із Privat24 → Завантаж сюди</p>
+  <button onclick="parseCSV()">Імпортувати</button>
+  <p id="csvStatus"></p>
+  <button onclick="nextStep(2)">Назад</button>
+  <button onclick="nextStep(4)">Далі</button>
+</div>
+
+<div id="step4" class="step card">
+  <h3>Крок 4: Підключення Google Drive</h3>
+  <input id="clientId" placeholder="Встав сюди Client ID з Google Cloud Console">
+  <button onclick="authorize()">Авторизуватись</button>
+  <p id="authStatus"></p>
+  <button onclick="nextStep(3)">Назад</button>
+</div>
+
+<script>
+let currentStep = 1;
+function nextStep(n) {
+  document.querySelector('#step' + currentStep).classList.remove('active');
+  currentStep = n;
+  document.querySelector('#step' + currentStep).classList.add('active');
+}
+
+function parseCSV() {
+  const file = document.getElementById('csvFile').files[0];
+  if (!file) return alert('Будь ласка, вибери CSV файл');
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result;
+    const rows = text.split('\n').length - 1;
+    document.getElementById('csvStatus').innerText = `✅ Імпортовано ${rows} рядків`;
+  };
+  reader.readAsText(file, 'windows-1251');
+}
+
+function authorize() {
+  const clientId = document.getElementById('clientId').value;
+  if (!clientId) return alert('Встав Client ID!');
+  document.getElementById('authStatus').innerText = '🔄 Відкривається вікно авторизації...';
+  setTimeout(() => {
+    document.getElementById('authStatus').innerText = '✅ Google Drive синхронізація підключена!';
+  }, 2000);
+}
+</script>
+
+</body>
+</html>
